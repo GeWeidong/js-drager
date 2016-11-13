@@ -137,8 +137,6 @@
 	}
 	//暴露到全局
 	window.CreatPager = CreatPager;
-
 })(jQuery,window.CreatPager || {});
-//假如这是另一个同事提交的代码
 
 
