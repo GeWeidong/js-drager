@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+
+<h1>select的操作</h1>
+<select id="select">
+    <option value="0">北京</option>
+    <option value="1">上海</option>
+    <option value="2">武汉</option>
+    <option value="3">南京</option>
+    <option value="4">广州</option>
+    <option value="5" selected="selected">深圳</option>
+</select>
+<h1>checkbox的操作</h1>
+<div>
+    <fieldset id="checkboxGroup">
+        <legend>选择最喜欢的城市</legend>
+        <div><input type="checkbox" name="city" value="北京" /><span>北京</span></div>
+        <div><input type="checkbox" name="city" value="上海" /><span>上海</span></div>
+        <div><input type="checkbox" name="city" value="南京" /><span>南京</span></div>
+        <div><input type="checkbox" name="city" value="深圳" /><span>深圳</span></div>
+        <div><input type="checkbox" name="city" value="广州" /><span>广州</span></div>
+        <div><input type="checkbox" name="city" value="武汉" /><span>武汉</span></div>
+    </fieldset>
+</div>
+
+<div style="margin-top:20px;">
+    <button id="btnCheckbox1">获取选择的checkbox</button>
+    <button id="btnCheckbox2">选择深圳和广州</button>
+    <button id="btnCheckbox3">全选</button>
+    <button id="btnCheckbox4">全不选</button>
+    <button id="btnCheckbox5">反选</button>
+</div>
+<h1>radio的操作</h1>
+<div>
+    <fieldset id="radioGroup">
+        <legend>选择最喜欢的城市</legend>
+        <div><input type="radio" name="city" value="北京" /><span>北京</span></div>
+        <div><input type="radio" name="city" value="上海" /><span>上海</span></div>
+        <div><input type="radio" name="city" value="南京" /><span>南京</span></div>
+        <div><input type="radio" name="city" value="深圳" /><span>深圳</span></div>
+        <div><input type="radio" name="city" value="广州" /><span>广州</span></div>
+        <div><input type="radio" name="city" value="武汉" /><span>武汉</span></div>
+    </fieldset>
+</div>
+<div style="margin-top:20px;">
+    <button id="btnRadio1">获取选择的radio</button>
+    <button id="btnRadio2">选择上海</button>
+</div>
+<h1>form的操作</h1>
+<form id="form">
+    <div>姓名：<input type="text" name="name" /></div>
+    <div>年龄：<input type="text" name="age" /></div>
+    <div>
+        性别：
+        <select name="sex">
+            <option value="男">男</option>
+            <option value="女">女</option>
+            <option value="保密" selected="selected">保密</option>
+        </select>
+    </div>
+    <fieldset>
+        <legend>最喜欢的城市</legend>
+        <div><input type="radio" name="city" value="广州" /><span>广州</span></div>
+        <div><input type="radio" name="city" value="深圳" /><span>深圳</span></div>
+        <div><input type="radio" name="city" value="上海" checked="checked" /><span>上海</span></div>
+    </fieldset>
+    <fieldset>
+        <legend>喜欢的运动</legend>
+        <div><input type="checkbox" name="sports" value="足球" /><span>足球</span></div>
+        <div><input type="checkbox" name="sports" value="篮球" /><span>篮球</span></div>
+        <div><input type="checkbox" name="sports" value="羽毛球" /><span>羽毛球</span></div>
+        <div><input type="checkbox" name="sports" value="乒乓球" /><span>乒乓球</span></div>
+    </fieldset>
+</form>
+<div style="margin-top:20px;">
+    <button id="btnSubmit">提交</button>
+    <button id="btnReset">重置</button>
+    <button id="btnFormValue">获取form的值</button>
+</div>
+<script src="jquery.min.js"></script>
+<script>
+    $(function(){
+        //对select的操作
+        (function(){
+
+            //获取select当前选中项的值
+            $('#select :selected').html()    //深圳
+            $('#select :selected').val()    //5
+            //这是推荐用法
+
+            $('#select').val()             //5
+            $('#select').html()             //获取的是元素的集合
+
+
+            //设置select选中值为3的option
+            $('#select').val('3');
+
+            //设置select选中文本为武汉的option
+            $('#select').children('option:contains("武汉")').attr('selected', 'selected');
+        })();
+
+        //checkbox的操作
+        (function(){
+            //获取选择的checkbox的值
+            $('#btnCheckbox1').click(function(){
+                var value = [];
+                $('#checkboxGroup').find(':checkbox:checked').each(function(){
+                    value.push($(this).val())
+                })
+                alert(value);
+            })
+
+            //选择深圳和广州
+            $('#btnCheckbox2').click(function(){
+                $('#checkboxGroup').find(':checkbox').each(function(){
+                    if($(this).val() === '深圳' || $(this).val() === '广州'){
+                        $(this).prop('checked',true);
+                    }else{
+                        $(this).prop('checked',false);
+                    }
+                })
+            })
+
+            //全选
+            $('#btnCheckbox3').click(function(){
+                $('#checkboxGroup').find(':checkbox').each(function(){
+                    $(this).prop('checked',true)
+                })
+            })
+
+            //全不选
+            $('#btnCheckbox4').click(function(){
+                $('#checkboxGroup').find(':checkbox').each(function(){
+                    $(this).prop('checked',false)
+                })
+            })
+
+            //反选
+            $('#btnCheckbox5').click(function(){
+                $('#checkboxGroup').find(':checkbox').each(function(){
+//                    if($(this).prop('checked') === true){
+//                        $(this).prop('checked',false)
+//                    }else{
+//                        $(this).prop('checked',true)
+//                    }
+                    //更简洁优雅的写法
+                    $(this).prop('checked',!$(this).prop('checked'))
+                })
+            })
+        })();
+
+        //radio的操作
+        (function(){
+            //获取选择的radio
+            $('#btnRadio1').click(function(){
+                var value = $('#radioGroup').find(':radio:checked').val()
+                alert(value)
+            })
+            //选择上海
+            $('#btnRadio2').click(function(){
+                $('#radioGroup').find(':radio').each(function(){
+                if($(this).val() === '上海'){
+                    $(this).prop('checked',true)
+                }
+            })})
+        })();
+
+        //form的整体操作
+        //jQuery提供了serialize()和serializeArray()获取form表单元素的值，
+        //serialize()把获取的值拼接成字符串，serializeArray()返回数组
+        (function(){
+        //提交
+            $('#btnSubmit').click(function(){
+                $('#form').submit();
+            })
+        //重置
+            $('#btnReset').click(function(){
+                //由于jQuery没有提供reset方法，只能用form原生的reset方法。
+                $('#form').get(0).reset();
+            })
+        //获取form的值
+            $('#btnFormValue').click(function(){
+                alert(decodeURIComponent($('#form').serialize()));
+            })
+
+        })();
+    })
+</script>
+</body>
+</html>

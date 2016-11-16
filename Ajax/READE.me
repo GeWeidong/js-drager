@@ -1,0 +1,138 @@
+1.HTTP请求简介
+超文本传输协议（HTTP，HyperText Transfer Protocal ），是简单、可靠的互联网文件传输协议。
+
++++HTTP的传输，不是一个文件整体传输
+	而是把一个大的文件，分成一个个报文(message)，然后传输的。所以我们的浏览器渲染页面，一块一块加载的，图片是一条一条显示的。的确，一个jpg图片，也是通过多个报文回来的。每个报文都会进行校验，保证这个报文里面的内容是准确的、和服务器一致的。所以HTTP是可靠的，文件不会发生任何偏差。
+
++++HTTP是无连接的
+	就是你访问一个网站，此时可能产生多个HTTP请求，请求html页面、请求jpg图片、请求外链css样式表，这些请求走过的路线，可以不一致。也就是说，没有和服务器有一个持久通路，你的每次请求HTTP完成之后，请求就关闭了，一个页面要多次打开、关闭HTTP
+
+
+“上网”这个事儿的本质，就是你输入网址之后，浏览器发出HTTP请求，请求服务器上的文件。服务器上的文件，再通过HTTP传输到本地，在浏览器中进行渲染。
+
+一次HTTP请求，有上行request、下行response两部分。通常，浏览器产生HTTP请求，是由于用户输入了新的网址、或者点击了超级链接，使页面跳转，这将导致页面的全局刷新。
+
+而Ajax技术，可以使网页悄悄地、偷偷地发起HTTP请求，请求回来的数据在页面局部刷新呈递。
+
+
+2.Ajax技术
+
++++++三个要素：
+
+① 带着数据偷偷上到服务器（GET或者POST，GET是通过URL地址?，POST报文头）
+② 传回JSON。
+③ 组建DOM、更新页面
+
++++++Ajax的一个固定的模板：
+
+	//第1步创建一个xhr对象，使用new关键来调用一个内置构造函数
+
+	var xhr = new XMLHttpRequest();
+
+	//第2步指定接收回来的内容，怎么处理。监听xhr对象的onreadystatechange事件，这个事件在xhr对象的“就绪状态”改变的时候触发。我们只关心就绪状态为4的时候的事情。
+
+	xhr.onreadystatechange = function(){
+		if(xhr.readyState == 4){
+			if(xhr.status >= 200 && xhr.status < 300 || xhr.status == 304){
+				callback(xhr.responseText);//处理返回的值
+			}else{
+				throw new Error("没有找到请求的文件");
+			}
+		}
+	}
+	
+	//第3步创建一个请求，第一个参数是请求的类型get或者post，第二个参数就是请求的路径，第三个参数叫做是否使用异步机制
+
+	xhr.open("get","a.txt",true);
+
+	//第4步发送请求，圆括号里面是请求头内容，get请求没有报文头写null
+
+	xhr.send(null);
+
++++++方法详解
+
+----XHR对象
+	Ajax完全依赖XMLHttpRequest对象，字面意思就是“XML文件的HTTP请求”对象。大家一般把new出来的变量叫做xhr。
+	IE6不兼容，常见的兼容性写法为：
+	if(window.XMLHttpRequest){
+		var xhr = XMLHttpRequest();//内置的构造函数
+	}else{
+		var xhr = new ActiveXObject("Microsoft.XMLHTTP");//兼容IE5、6
+	}
+
+----open()方法
+	open方法表示让xhr对象配置一个请求，open字面意思是打开，就是打开一个请求。open之后并没有真正的发送请求，而是要用send()方法
+
+	open方法有三个参数：
+	xhr.open(要发送的请求类型,路径,是否使用异步);
+
+	第一个参数，要么是"get"  要么是"post"  
+	第二个参数，就是处理这个请求的PHP、java、.net路径
+	的三个参数，表示是否是异步处理，true表示异步，false表示同步，一般用true
+
+----js中的异步回忆(4中方法)
+	① 回调函数(callback)
+	function f1(){
+		setTimeOut(function(){
+			f2();
+		},0)
+	}
+
+	②事件监听(事件驱动模式)
+	f1.on('done',f2);
+
+	function f1(){
+		setTimeOut(function(){
+			f1.trigger('done');
+		},0)
+	}
+
+	③ 发布-订阅模式
+	-《18中设计模式》
+
+	④ Promise对象
+	-CommonJs提出的异步编程的统一接口，ES6中实现；
+	-Promise对象是一个返回值的代理，允许为异步操作的成功或失败指定处理方法。
+
+----send()方法
+	send就是发送请求，里面的参数表示http requset报头里面携带内容。
+	get请求报头里面没有内容，post请求有内容。
+
+	get请求：
+	xhr.send(null);
+
+	post请求，写的也是类似于get请求的参数字符串(基本上用于表单提交)：
+	xhr.send("name=kaola&age=18&id=3");
+
+----encodeURIComponent()
+	请求尽量不要有中文，如果要传输中文为了防止服务器上错乱，我们前端一般要进行encodeURIComponent处理
+
+----post()请求的处理
+	POST请求在服务器端比较难处理，需要用服务器写对应“流处理”程序。为什么？POST请求参数的尺寸可以无限大，所以post请求也是一段一段上去的。（node.js中我们将遇见这个datachuck）。
+
+	如果是表单提交，那么PHP内置了相应处理程序。Ajax如果需要模拟表单提交，那么需要在send前设置：
+
+	xhr.open("post","do2.php",true);
+	//如果用post发送请求，那么必须写一句话，模拟成form表单提交：
+
+	xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+	xhr.send("xingming="+encodeURIComponent("小明")+"&age=18");
+
+	解释：application/x-www-form-urlencoded：窗体数据被编码为名称/值对。这是标准的编码格式。
+
+----onreadystatechange()
+	xhr对象一旦开始open，就有了readyState属性，readyState属性一旦发生改变，就能够触发onreadystatechange事件。
+
+	readyState属性一共有0、1、2、3、4五种状态，我们只关心4这种状态。
+
+	xhr.responseText就表示接收回来的文本。是一个string类型。
+
+
+----Http状态码
+	常见状态码：
+	200		ok，成功
+	304 	not modified ，文件没有改变。浏览器会比对你请求的文件，和已经在缓存文件夹中的文件，如果相同，不再请求。这就是为啥第二次访问网站，速度更快的原因。
+	404		not found	，没有找到文件
+	5、6开头的一般指服务器错误。
+
+
