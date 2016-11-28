@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>拖拽01</title>
+	<style>
+		*{
+			margin: 0;
+			padding:0;
+		}
+		#obj{
+			width: 200px;
+			height:200px;
+			background: blue;
+			border:1px solid #ccc;
+			cursor: move;
+			position: relative;
+		}
+	</style>
+</head>
+<body>
+<div id="obj">
+	
+</div>
+	<script>
+		;(function(window,undefined){
+
+			//工具方法集合
+			var dom = {
+				//事件绑定
+				on:function(ele,eventname,handler){
+					if(ele.addEventListener){
+						ele.addEventListener(eventname, handler, true);
+					}else{
+						ele.attachEvent("on"+eventname, handler);
+					}
+				},
+				//获取元素样式
+				getStyle:function(ele,styleName){
+					var realStyle = null;
+					if(window.getComputedStyle){
+						realStyle = window.getComputedStyle(ele,null)[styleName];
+					}else if(ele.currentStyle){
+						realStyle = ele.currentStyle[styleName];
+					}
+					return realStyle;
+				},
+				//设置元素样式
+				setStyle:function(ele,css){
+					for(var k in css){
+						ele.style[k] = css[k];
+					}
+				}
+			};
+
+			//定义拖拽类
+			function DragElement(ele){
+				this.ele = ele;
+				this.x = 0;
+				this.y = 0;
+			}
+
+			DragElement.prototype = {
+				//记录坐标值
+				setXY:function(x,y){
+					this.x = parseInt(x) || 0;
+					this.y = parseInt(y) || 0;
+				},
+				//设置拖拽元素css
+				setEleCss:function(css){
+					dom.setStyle(this.ele,css);
+				}
+
+			}
+
+			//鼠标类
+			function Mouse(x,y){
+				this.x = x;
+				this.y = y;
+			}
+			//设置坐标
+			Mouse.prototype.setXY = function(x,y){
+				this.x = parseInt(x);
+				this.y = parseInt(y);
+			}
+			//拖拽配置
+			var dragConfig = {
+				mouse:new Mouse(),
+				zIndex:1,
+				dragObj:null
+			};
+
+			//拖拽类
+			function Drag(ele){
+				this.ele = ele;
+
+				function movedown(event){
+					var event = event || window.event;
+					var ele = event.target || event.srcElement;
+					dragConfig.mouse.setXY(event.clientX,event.clientY);//记录鼠标坐标
+					dragConfig.dragObj =  new DragElement(ele);
+					var dragObj = dragConfig.dragObj;
+					dragObj.setXY(ele.style.left,ele.style.top);
+					dragObj.setEleCss({
+						"position":"relative",
+						"zIndex"  :dragConfig.zIndex++
+					})
+				};
+
+				ele.onselectstart = function () {
+                    //防止拖拽对象内的文字被选中
+                    return false;
+	            };
+	            dom.on(ele, "mousedown", movedown);
+			}
+
+			dom.on(document,"mousemove",function(event){
+				var event = event || window.event;
+				if(dragConfig.dragObj){
+					var mouse = dragConfig.mouse;
+					var dragObj = dragConfig.dragObj;
+					dragObj.setEleCss({
+						"left": parseInt(event.clientX - mouse.x + dragObj.x) + "px",
+						"top" : parseInt(event.clientY - mouse.y + dragObj.y) + "px"
+					})
+				}
+			});
+
+			dom.on(document,"mouseup",function(event){
+				var event = event || window.event;
+				dragConfig.dragObj = null;
+			})
+
+			window.Drag = Drag;
+
+		})(window,undefined);
+
+		//调用test
+		Drag(document.getElementById('obj'))
+	</script>
+</body>
+</html>
+

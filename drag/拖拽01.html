@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>拖拽01</title>
+	<style>
+		*{
+			margin: 0;
+			padding:0;
+		}
+		#obj{
+			width: 200px;
+			height:200px;
+			background: blue;
+			border:1px solid #ccc;
+			cursor: move;
+		}
+	</style>
+</head>
+<body>
+<div id="obj">
+	
+</div>
+	<script>
+		var oBj = document.getElementById('obj');
+		
+		oBj.style.top  = 0;
+		oBj.style.left = 0;
+
+		var mouseX, mouseY, objX, objY;
+        var dragging = false;
+        var dragging;
+
+		oBj.onmousedown = function (event) {
+			var event = event || window.event;
+			oBj.style.position = 'relative';
+			dragging  = true;
+
+			mouseX = event.clientX; //鼠标按下的X坐标
+			mouseY = event.clientY; //鼠标按下的Y坐标
+			objX   = parseInt(oBj.style.left); //元素的left值
+			objY   = parseInt(oBj.style.top); //元素的top值
+		};
+
+		document.onmousemove = function(event){
+			var event = event || window.event;
+
+			if(dragging){
+				oBj.style.left = parseInt( event.clientX - mouseX + objX )+'px';
+				oBj.style.top  = parseInt( event.clientY - mouseY + objY )+'px';
+			}
+			
+		};
+
+		document.onmouseup = function(){
+			dragging = false;
+		}
+	</script>
+</body>
+</html>
